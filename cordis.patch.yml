@@ -1,0 +1,18 @@
+# dsh-carryon bundle layer: run CarryOnCompactionEngine as `ctx.compaction`.
+#
+# Profiles without agent presets (headless, tui, sdk, acp) mount compaction at the root as row
+# `compaction-basic`. A patch row cannot re-point an existing row to another plugin (its `name` must match), so
+# we disable that row and insert our own. CarryOnCompactionEngine extends BasicCompactionEngine and takes the
+# same config keys (thresholdRatio, retainTokens, ...); config written for `compaction-basic` must move to
+# `carryon-compaction`.
+#
+# Profiles built on dsh-web-app (web, desktop) mount compaction inside each agent preset instead and disable
+# the root row. There the root carryon row stays disabled (a root engine would also hear preset agents) and
+# web-preset.patch.yml adds "CarryOn mode", which is made the default preset below.
+- id: compaction-basic
+  disabled: true
+
+- insert:
+    - id: carryon-compaction
+      name: dsh-carryon
+      disabled: !!js "ctx.get('profileContext')?.startedBundles?.includes('@deepseek-ai/dsh-web-app') === true"
