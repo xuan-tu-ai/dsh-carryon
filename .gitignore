@@ -1,0 +1,19 @@
+# Dependencies and build output
+node_modules/
+lib/
+dist/
+*.tsbuildinfo
+coverage/
+
+# Local dsh homes and run outputs
+.dsh-home/
+runs/
+*.log
+
+# Secrets
+.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
