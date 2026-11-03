@@ -1,0 +1,7 @@
+{
+  "id": "logstats",
+  "kind": "data-heavy CLI",
+  "prompt": "Implement the logstats.py command-line tool in this repository as specified in SPEC.md. A real access log is in data/access.log; use it to check your work. Run the visible tests with `python3 -m unittest discover -s tests`. Hidden tests run the CLI on other logs and check every requirement in SPEC.md, including the text output format and the exit codes. Do not edit SPEC.md or the files in tests/.",
+  "setup": "python3 {task}/make_log.py data/access.log",
+  "timeoutMinutes": 40
+}

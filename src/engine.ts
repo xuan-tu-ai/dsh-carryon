@@ -101,6 +101,17 @@ export interface SessionMemory {
   scan: ScanMemory | undefined
 }
 
+/** Marker of the role-call usage appended to a failed fold's error text. */
+export const RUNTIME_USAGE_MARK = '[runtime usage '
+
+/**
+ * Usage of a rejected fold's role calls, as appended to its error text (so session logs account for it).
+ * @returns `[runtime usage {...json}]`.
+ */
+export function formatRuntimeUsage(usage: TokenUsage): string {
+  return `${RUNTIME_USAGE_MARK}${JSON.stringify(usage)}]`
+}
+
 /**
  * Backoff after failed folds (Appendix A.3): after k consecutive failures, the next scan waits until the region's
  * interaction text has grown by `rescanTokens · 2^min(k, maxBackoffDoublings)` tokens since the last scan.
@@ -206,12 +217,17 @@ export class CarryOnCompactionEngine extends BasicCompactionEngine {
     memory.failures += 1
     memory.tokensAtLastScan = tokens
     memory.scan = outcome.memory
-    return this.failOrFallback(input, agent, signal, state, memory, `fold rejected: ${outcome.reason}`)
+    const spent = usage.inputTokens + usage.outputTokens > 0 ? usage : undefined
+    return this.failOrFallback(input, agent, signal, state, memory, `fold rejected: ${outcome.reason}`, spent)
   }
 
   /**
    * Throw (the fold fails, nothing changes) unless the context is near the window, in which case summarize with
    * dsh's basic summarizer and keep the current CarryOn checkpoint in front of it.
+   *
+   * `spent` is what the rejected fold's role calls used. A failed compaction has no `compaction/summary` event, so
+   * it goes into the error text (`compaction/end.error`, see {@link formatRuntimeUsage}); on fallback it is added to
+   * the result's usage, which then no longer describes a single model call (unmarked result).
    */
   private async failOrFallback(
     input: SummarizationInput,
@@ -220,8 +236,11 @@ export class CarryOnCompactionEngine extends BasicCompactionEngine {
     state: CarryOnState,
     memory: SessionMemory,
     reason: string,
+    spent?: TokenUsage,
   ): Promise<SummaryResultLike> {
-    if (!(await this.nearWindow(agent, signal))) throw new CarryOnFoldError(`dsh-carryon: ${reason}`)
+    if (!(await this.nearWindow(agent, signal))) {
+      throw new CarryOnFoldError(`dsh-carryon: ${reason}${spent ? ` ${formatRuntimeUsage(spent)}` : ''}`)
+    }
     this.ctx.logger.warn(`dsh-carryon: ${reason}; context is near the window, falling back to dsh's summary`)
     // @ts-expect-error SummarizationInput here is a structural copy; dsh hands summarize() its own input unchanged.
     const result: SummaryResultLike = await super.summarize(input, agent, signal)
@@ -229,8 +248,17 @@ export class CarryOnCompactionEngine extends BasicCompactionEngine {
     memory.tokensAtLastScan = 0
     memory.scan = undefined
     const checkpoint = renderCheckpoint(state.carriers, state.ec)
-    if (checkpoint === null) return result
-    return { ...result, summary: [{ type: 'text' as const, text: checkpoint }, ...result.summary] }
+    const summary = checkpoint === null ? result.summary : [{ type: 'text' as const, text: checkpoint }, ...result.summary]
+    if (spent === undefined) return { ...result, summary }
+    const combined: SummaryResultLike = {
+      summary,
+      provider: result.provider,
+      model: result.model,
+      usage: addUsage(result.usage ?? { inputTokens: 0, outputTokens: 0 }, spent),
+    }
+    if (result.rawOutput !== undefined) combined.rawOutput = result.rawOutput
+    if (result.maxTokens !== undefined) combined.maxTokens = result.maxTokens
+    return combined
   }
 
   /** True when the session's latest request is at `fallbackRatio` of its model's window or above. */

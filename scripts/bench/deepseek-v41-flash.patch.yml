@@ -1,0 +1,14 @@
+# Model overlay for real benchmark runs: DeepSeek V4.1 Flash (1M-token window) through dsh's DeepSeek adapter.
+# With Token Harbor: DEEPSEEK_BASE_URL=https://tokenharbor.ai and DEEPSEEK_API_KEY=<Token Harbor key>.
+# With DeepSeek's own API, use its model id instead (or drop this overlay to keep dsh's default model).
+- id: llm-deepseek
+  config:
+    models:
+      - id: deepseek-v4.1-flash
+        contextWindow: 1000000
+        maxTokens: 8192
+
+- id: agent-default-model
+  config:
+    provider: deepseek-official
+    model: deepseek-v4.1-flash
