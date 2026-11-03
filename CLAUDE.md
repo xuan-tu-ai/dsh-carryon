@@ -20,6 +20,11 @@ DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plu
 - **State in `rawOutput` is user-visible** (Trajectory → Raw Output). Keep it readable JSON, never secrets.
 - Unit tests run offline: no API keys, no network. End-to-end checks use `scripts/fake-messages-server.mjs`.
 
+## Git authorship
+
+- Commit as `xuan-tu-ai <nxuantu36@gmail.com>` (author and committer). Never add `Co-Authored-By: Claude`,
+  `Claude-Session:` or any other Claude attribution to commits or PR descriptions.
+
 ## Commands
 
 ```bash
