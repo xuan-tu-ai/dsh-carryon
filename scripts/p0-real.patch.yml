@@ -1,0 +1,8 @@
+# Overlay for a P0 run with a real DeepSeek key: fold at 5% of the model's context window (about 52k tokens
+# of the 1M-token deepseek-flash window) instead of dsh's 80%, keeping the newest ~4k tokens verbatim.
+# P0 replaces folded history with a fixed text, so use a throwaway session and repository.
+# Usage: dsh --profile tui --patch scripts/p0-real.patch.yml
+- id: carryon-compaction
+  config:
+    thresholdRatio: 0.05
+    retainTokens: 4000

@@ -1,0 +1,15 @@
+# Test overlay for the P0 spike: a small context window and low thresholds so automatic (pressure)
+# compaction runs after a few turns against scripts/fake-messages-server.mjs.
+# Usage: dsh --profile <name> --patch scripts/p0-pressure.patch.yml ...
+- id: llm-deepseek
+  config:
+    models:
+      - id: deepseek-flash
+        contextWindow: 32000
+        maxTokens: 2000
+
+- id: carryon-compaction
+  config:
+    thresholdRatio: 0.8
+    headroomTokens: 4000
+    retainTokens: 500

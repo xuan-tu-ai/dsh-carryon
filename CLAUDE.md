@@ -1,0 +1,35 @@
+# CLAUDE.md
+
+Guidance for Claude Code working in this repository.
+
+## What this project is
+
+dsh-carryon ports the CarryOn runtime of [carrycode](https://github.com/xuan-tu-ai/carrycode) to TypeScript as a
+DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plugin.md`. Spike results:
+`docs/p0-findings.md`.
+
+## Hard rules
+
+- **Never copy prompt text from the paper's Appendix D**, and do not reuse dsh's compaction instruction.
+  Runtime prompts come from carrycode's `src/carrycode/prompts/`.
+- **Extend dsh, do not patch it.** Subclass `BasicCompactionEngine` and override `summarize()` only; ship a
+  bundle patch. dsh packages are peer + dev dependencies pinned to one dsh release.
+- **A failed fold changes nothing.** Throw from `summarize()`; never append to the session yourself.
+- **No new synchronous reads of session history** (`snapshotEvents`, `eventAt`, `ownEvents` are deprecated in
+  dsh). State that must survive resume goes through the session projection in `src/projection.ts`.
+- **State in `rawOutput` is user-visible** (Trajectory → Raw Output). Keep it readable JSON, never secrets.
+- Unit tests run offline: no API keys, no network. End-to-end checks use `scripts/fake-messages-server.mjs`.
+
+## Commands
+
+```bash
+pnpm install
+pnpm typecheck && pnpm test
+pnpm build                     # lib/, required before `dsh plugin add file:...`
+scripts/p0-offline-check.sh    # real dsh + fake Messages server, checks the session log
+```
+
+## Style
+
+TypeScript strict (same compiler options as dsh), ESM, `.ts` import specifiers rewritten on build, small
+functions, docstrings that cite the paper or design-doc section they implement.

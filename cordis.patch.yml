@@ -1,0 +1,12 @@
+# dsh-carryon bundle layer: run CarryOnCompactionEngine as `ctx.compaction`.
+#
+# The dsh-base bundle mounts the default backend as row `compaction-basic`. A patch row cannot re-point an
+# existing row to another plugin (its `name` must match), so we disable that row and insert our own.
+# CarryOnCompactionEngine extends BasicCompactionEngine and takes the same config keys
+# (thresholdRatio, retainTokens, ...); config written for `compaction-basic` must move to `carryon-compaction`.
+- id: compaction-basic
+  disabled: true
+
+- insert:
+    - id: carryon-compaction
+      name: dsh-carryon
