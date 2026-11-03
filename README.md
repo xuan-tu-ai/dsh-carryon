@@ -25,7 +25,25 @@ affiliated with the paper's authors or with DeepSeek.
   (`src/projection.ts`); a fold's state counts only after its `compaction/end` reports success.
 - `cordis.patch.yml` disables dsh's `compaction-basic` row and inserts `carryon-compaction`.
 
-P0 state is only a fold counter. The Tracker, Compiler and Validator come in P1/P2.
+P0 state is only a fold counter. The Tracker and Compiler, and wiring the core into `summarize()`, come in P2.
+
+## Port status
+
+| Milestone (design §8) | State |
+| --- | --- |
+| P0 spike | done: engine swap, state in `rawOutput`, web CarryOn mode ([findings](docs/p0-findings.md)) |
+| P1 core port | done: `records`, `registry`, `validator`, `view` in TS; all carrycode parity fixtures pass. Not used by the engine yet |
+| P2 roles + engine | not started |
+
+The core port is checked against carrycode's parity fixtures (`test/fixtures/parity/`, vendored from the carrycode
+commit recorded in `source.json` by `pnpm sync:parity`). Where dsh differs from carrycode's message format:
+
+- dsh messages are lists of content blocks. `messageText` keeps `text` blocks, renders a `tool-call` block as
+  `name(arguments)` and leaves `reasoning` out. carrycode renders OpenAI `tool_calls` instead, so tool calls
+  are not part of the parity fixtures.
+- Lengths are counted in code points and whitespace follows Python's `str.isspace()`, so token estimates,
+  truncation and carrier ids agree with carrycode on non-ASCII text.
+- The live-tail boundary helpers (`safe_tail_start`, `build_view`) are not ported: dsh keeps the verbatim tail.
 
 ## Profiles
 
@@ -93,11 +111,17 @@ To read a session log: `node scripts/read-session-log.mjs "$DSH_HOME"/sessions/*
 | `src/engine.ts` | `CarryOnCompactionEngine`, the `summarize()` override |
 | `src/projection.ts` | session projection that restores fold state on resume |
 | `src/state.ts` | fold state format stored in `rawOutput` |
+| `src/records.ts` | zod models: carriers, claims, candidates, execution context, Compiler input/output |
+| `src/registry.ts` | carrier ids, versioned carrier store, candidate registry |
+| `src/validator.ts` | checks a Compiler output before commit; same problem strings as carrycode |
+| `src/view.ts` | checkpoint text, step-numbered tail projection, token estimate |
+| `src/pystr.ts` | Python string semantics the port needs (whitespace, code points, `normpath`) |
 | `cordis.patch.yml` | bundle layer: disable `compaction-basic`, insert `carryon-compaction` (not in web profiles) |
 | `web-preset.patch.yml` | generated "CarryOn mode" preset for web profiles (`pnpm gen:web-preset`) |
 | `web-default.patch.yml` | makes CarryOn mode the default preset |
 | `scripts/` | fake Messages server, offline check, session-log reader, test overlays |
-| `test/` | unit tests (`node --test`, no network) |
+| `test/` | unit tests (`node --test`, no network) and the parity test |
+| `test/fixtures/parity/` | carrycode's parity fixtures, vendored by `scripts/sync-parity-fixtures.mjs` |
 | `docs/p0-findings.md` | what the spike found, answers to the design doc's open questions |
 
 ## License

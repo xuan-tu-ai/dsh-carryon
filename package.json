@@ -42,7 +42,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test --experimental-strip-types test/*.test.ts",
     "gen:web-preset": "node scripts/gen-web-preset.mjs",
-    "check:web-preset": "node scripts/gen-web-preset.mjs --check"
+    "check:web-preset": "node scripts/gen-web-preset.mjs --check",
+    "sync:parity": "node scripts/sync-parity-fixtures.mjs"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.6-alpha.1",
