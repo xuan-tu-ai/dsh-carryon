@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/xuan-tu-ai/carrycode",
+  "commit": "8b394eac9848b880bee211bac6914c0d0fe06350",
+  "path": "tests/fixtures/parity",
+  "generator": "scripts/export_parity_fixtures.py",
+  "sha256": {
+    "registry.json": "72f747f7c746d606f6618b3646e37b4b3ce8e64ec2269ae5e18f93050b95a08a",
+    "validator.json": "3e467d1c5e0ea2f4f1a8695328e8183f18342f1fffdc801f613a06f346c7b189",
+    "view.json": "446668f0639e33e46256fe9f030df61228513a6224f00d5e17568d6ec431a75b"
+  }
+}
