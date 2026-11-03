@@ -1,0 +1,7 @@
+# Make "CarryOn mode" the default agent preset for new sessions in profiles built on dsh-web-app.
+# A user's own default choice in the Web UI (the registry's `selectedDefault`) still wins.
+# Profiles without agent presets have no `agent-preset-registry` row, so dsh prints one
+# "patch: entry not found" warning there; it is harmless.
+- id: agent-preset-registry
+  config:
+    default: carryon

@@ -32,6 +32,8 @@ pnpm install
 pnpm typecheck && pnpm test
 pnpm build                     # lib/, required before `dsh plugin add file:...`
 scripts/p0-offline-check.sh    # real dsh + fake Messages server, checks the session log
+pnpm gen:web-preset            # regenerate web-preset.patch.yml after a dsh upgrade (never edit it by hand)
+pnpm check:web-preset          # fails if web-preset.patch.yml is out of date
 ```
 
 ## Style

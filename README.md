@@ -29,9 +29,19 @@ P0 state is only a fold counter. The Tracker, Compiler and Validator come in P1/
 
 ## Profiles
 
-Works with profiles that mount compaction at the root: `headless`, `tui`, `sdk`, `acp`. In the `web`
-profile, compaction lives inside each agent preset, so automatic folds use dsh-carryon but `/compact` uses
-the preset's own engine. See [findings](docs/p0-findings.md#web-profile-compaction-belongs-to-agent-presets).
+- `headless`, `tui`, `sdk`, `acp`: dsh-carryon replaces the root compaction backend.
+- `web` (and desktop): the bundle adds **CarryOn mode** to the mode menu next to the chat box and makes it
+  the default for new sessions. The other modes (Standard, PTC, ...) keep dsh's own compaction, so you can
+  compare the two. CarryOn mode is generated from dsh's Standard mode by `scripts/gen-web-preset.mjs`.
+
+```bash
+npx @deepseek-ai/dsh@0.2.2-alpha.2 plugin --profile web add "file:$PWD"
+npx @deepseek-ai/dsh@0.2.2-alpha.2 web
+```
+
+![CarryOn mode in the dsh Web UI](docs/images/web-carryon-mode-menu.png)
+
+Details in [findings](docs/p0-findings.md#web-profile-compaction-belongs-to-agent-presets).
 
 ## Try it offline (no API key)
 
@@ -83,7 +93,9 @@ To read a session log: `node scripts/read-session-log.mjs "$DSH_HOME"/sessions/*
 | `src/engine.ts` | `CarryOnCompactionEngine`, the `summarize()` override |
 | `src/projection.ts` | session projection that restores fold state on resume |
 | `src/state.ts` | fold state format stored in `rawOutput` |
-| `cordis.patch.yml` | bundle layer: disable `compaction-basic`, insert `carryon-compaction` |
+| `cordis.patch.yml` | bundle layer: disable `compaction-basic`, insert `carryon-compaction` (not in web profiles) |
+| `web-preset.patch.yml` | generated "CarryOn mode" preset for web profiles (`pnpm gen:web-preset`) |
+| `web-default.patch.yml` | makes CarryOn mode the default preset |
 | `scripts/` | fake Messages server, offline check, session-log reader, test overlays |
 | `test/` | unit tests (`node --test`, no network) |
 | `docs/p0-findings.md` | what the spike found, answers to the design doc's open questions |
