@@ -1,0 +1,22 @@
+# Overlay for a run with a real model through dsh's DeepSeek adapter (Messages protocol). Here: DeepSeek V4.1 Flash
+# behind Token Harbor (DEEPSEEK_BASE_URL=https://tokenharbor.ai, DEEPSEEK_API_KEY=<Token Harbor key>); with DeepSeek's
+# own API, drop the llm-deepseek and agent-default-model rows.
+# Folds at 5% of the 1M-token window (about 50k tokens) instead of dsh's 80%, keeping the newest ~4k tokens verbatim,
+# so folds happen in a short session. The Tracker and Compiler use the session's model.
+# Usage: dsh --profile tui --patch scripts/real.patch.yml
+- id: llm-deepseek
+  config:
+    models:
+      - id: deepseek-v4.1-flash
+        contextWindow: 1000000
+        maxTokens: 8192
+
+- id: agent-default-model
+  config:
+    provider: deepseek-official
+    model: deepseek-v4.1-flash
+
+- id: carryon-compaction
+  config:
+    thresholdRatio: 0.05
+    retainTokens: 4000

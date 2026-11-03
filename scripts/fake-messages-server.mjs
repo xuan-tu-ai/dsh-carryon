@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 // Keyless stand-in for a Messages-compatible endpoint (the protocol dsh's `llm-deepseek` adapter speaks), so a
-// real `dsh` process can run sessions offline. Every POST .../v1/messages streams one plain-text assistant reply;
+// real `dsh` process can run sessions offline. Every POST .../v1/messages streams one assistant reply;
 // `input_tokens` is a rough estimate of the request size so dsh's token meter sees pressure grow.
+//
+// Replies by request kind:
+// - dsh-carryon Tracker (system prompt "# Tracker System Prompt"): one candidate for the newest live-tail step and a
+//   compile request citing it, so every scan leads to a fold.
+// - dsh-carryon Compiler ("# Compiler System Prompt"): one new carrier per selected candidate, citing the evidence.
+// - dsh's own compaction summary (last user message is its compaction instruction): a short Markdown checkpoint.
+// - anything else (agent turns): plain text of --reply-chars characters.
 //
 // Usage: node scripts/fake-messages-server.mjs [--port 8787] [--reply-chars 1200] [--log requests.jsonl]
 // Then run dsh with DEEPSEEK_BASE_URL=http://127.0.0.1:<port> DEEPSEEK_API_KEY=fake.
@@ -46,6 +53,44 @@ function lastUserText(request) {
   return ''
 }
 
+function systemText(request) {
+  const s = request.system
+  if (typeof s === 'string') return s
+  return Array.isArray(s) ? s.map(b => b?.text ?? '').join('\n') : ''
+}
+
+function section(text, name) {
+  const start = text.indexOf(`# ${name}\n`)
+  if (start < 0) return ''
+  const body = text.slice(start + name.length + 3)
+  const end = body.search(/\n\n# [A-Z]/)
+  return end < 0 ? body : body.slice(0, end)
+}
+
+function trackerReply(user) {
+  const steps = [...section(user, 'Live tail').matchAll(/^\[step (\d+)\]/gm)].map(m => Number(m[1]))
+  if (steps.length === 0) return {}
+  const step = Math.max(...steps)
+  const candidate = {
+    candidate_id: `C${step}`, provisional_type: 'information_product', subject: `fake finding at step ${step}`,
+    description: 'scripted by the fake server', supporting_steps: [step], first_seen_step: step, last_revised_step: step,
+  }
+  return { candidate_updates: [candidate], compile_requests: [{ candidate_id: candidate.candidate_id, evidence_steps: [step] }] }
+}
+
+function compilerReply(user) {
+  const candidates = JSON.parse(section(user, 'Selected candidates') || '[]')
+  const steps = [...section(user, 'Evidence').matchAll(/^## step (\d+)$/gm)].map(m => Number(m[1]))
+  return {
+    carrier_edits: candidates.map(c => ({
+      candidate_id: c.candidate_id, carrier_type: c.provisional_type, subject: c.subject,
+      summary: `fake progress through step ${Math.max(...steps)}`,
+      claims: [{ claim_id: 'k1', proposition: 'the fake server saw this step', source_steps: steps }],
+    })),
+    execution_context: { current_focus: ['continue the fake task'], immediate_continuation: ['next turn'] },
+  }
+}
+
 function sse(res, event, data) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
 }
@@ -69,10 +114,15 @@ const server = createServer((req, res) => {
     calls += 1
     const n = calls
     const inputTokens = Math.ceil(raw.length / 4)
-    const text = replyText(n, lastUserText(request))
+    const system = systemText(request)
+    const user = lastUserText(request)
+    const text = system.startsWith('# Tracker System Prompt') ? JSON.stringify(trackerReply(user))
+      : system.startsWith('# Compiler System Prompt') ? JSON.stringify(compilerReply(user))
+        : user.includes('You are now acting as a compaction engine') ? '## Primary Request and Intent\n- fake dsh summary\n'
+          : replyText(n, user)
     const outputTokens = Math.ceil(text.length / 4)
     if (values.log) {
-      appendFileSync(values.log, JSON.stringify({ n, model: request.model, messages: request.messages?.length, inputTokens }) + '\n')
+      appendFileSync(values.log, JSON.stringify({ n, model: request.model, kind: system.startsWith('# Tracker') ? 'tracker' : system.startsWith('# Compiler') ? 'compiler' : (user.includes('You are now acting as a compaction engine') ? 'dsh-summary' : 'agent'), messages: request.messages?.length, inputTokens }) + '\n')
     }
     if (request.stream === false) {
       res.writeHead(200, { 'content-type': 'application/json' })

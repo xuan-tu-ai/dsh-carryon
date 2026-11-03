@@ -13,7 +13,7 @@ import { z } from 'zod'
 import type { ProjectionDefinition } from '@deepseek-ai/dsh-session-projection'
 import type { SessionEvent } from '@deepseek-ai/dsh-session'
 import '@deepseek-ai/dsh-compaction'
-import { decodeState, INITIAL_STATE, STATE_VERSION, type CarryOnState } from './state.ts'
+import { CarryOnState, decodeState, INITIAL_STATE } from './state.ts'
 
 /** Projection key owned by this plugin. */
 export const PROJECTION_KEY = 'carryon'
@@ -25,14 +25,9 @@ export interface CarryOnProjectionState {
   readonly pending: { readonly compactionId: string; readonly state: CarryOnState } | null
 }
 
-const carryOnStateSchema = z.object({
-  v: z.literal(STATE_VERSION),
-  folds: z.number().int().nonnegative(),
-})
-
 const projectionStateSchema: z.ZodType<CarryOnProjectionState> = z.object({
-  committed: carryOnStateSchema,
-  pending: z.object({ compactionId: z.string(), state: carryOnStateSchema }).nullable(),
+  committed: CarryOnState,
+  pending: z.object({ compactionId: z.string(), state: CarryOnState }).nullable(),
 })
 
 /**
@@ -62,5 +57,5 @@ export const carryOnProjectionDefinition = {
   stateSchema: projectionStateSchema,
   init: (): CarryOnProjectionState => ({ committed: INITIAL_STATE, pending: null }),
   apply: applyCarryOnProjection,
-  stateVersion: 0,
+  stateVersion: 1,
 } satisfies ProjectionDefinition<typeof PROJECTION_KEY, CarryOnProjectionState>

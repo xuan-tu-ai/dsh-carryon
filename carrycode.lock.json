@@ -1,0 +1,30 @@
+{
+  "repository": "https://github.com/xuan-tu-ai/carrycode",
+  "commit": "55a54ab2e86f04e0dff0f6ffb01fff4bca0b562d",
+  "files": {
+    "test/fixtures/parity/registry.json": {
+      "upstream": "tests/fixtures/parity/registry.json",
+      "sha256": "72f747f7c746d606f6618b3646e37b4b3ce8e64ec2269ae5e18f93050b95a08a"
+    },
+    "test/fixtures/parity/validator.json": {
+      "upstream": "tests/fixtures/parity/validator.json",
+      "sha256": "3e467d1c5e0ea2f4f1a8695328e8183f18342f1fffdc801f613a06f346c7b189"
+    },
+    "test/fixtures/parity/view.json": {
+      "upstream": "tests/fixtures/parity/view.json",
+      "sha256": "446668f0639e33e46256fe9f030df61228513a6224f00d5e17568d6ec431a75b"
+    },
+    "test/fixtures/parity/roles.json": {
+      "upstream": "tests/fixtures/parity/roles.json",
+      "sha256": "1a558ae559f8d526d2de4412df3941630eff7bce6104ae97b082b310ce919445"
+    },
+    "prompts/tracker.md": {
+      "upstream": "src/carrycode/prompts/tracker.md",
+      "sha256": "cf13d23583d480bda2292d07c85fd685a63eb11c4c9804248fbd53927619092c"
+    },
+    "prompts/compiler.md": {
+      "upstream": "src/carrycode/prompts/compiler.md",
+      "sha256": "1c7c1c99e72190a1c89fcb292594d95aa5b4090d823a4b713418f938dd593130"
+    }
+  }
+}

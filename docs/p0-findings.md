@@ -4,6 +4,9 @@ Date: 2026-11-03. dsh version: `@deepseek-ai/dsh@0.2.2-alpha.2` (npm), source ch
 `deepseek-ai/deepseek-harness` `master` `ce7073d5`. Design: carrycode
 [`docs/design/dsh-plugin.md`](https://github.com/xuan-tu-ai/carrycode/blob/main/docs/design/dsh-plugin.md) §8 (P0).
 
+> Scripts were renamed in P2: `p0-offline-check.sh` → `offline-check.sh`, `check-p0-log.mjs` → `check-fold-log.mjs`,
+> `DSH_CARRYON_P0_FAIL` → `DSH_CARRYON_FAIL`. The numbers below are from the P0 run.
+
 ## Result
 
 P0 is done. Profiles without agent presets (headless, tui, sdk, acp) use dsh-carryon as their root compaction

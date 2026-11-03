@@ -16,8 +16,17 @@ import { z } from 'zod'
 export const CarrierType = z.enum(['external_object', 'information_product', 'situated_state'])
 export type CarrierType = z.output<typeof CarrierType>
 
+/**
+ * An integer, also accepted as a decimal string or a float with no fractional part, as pydantic's lax mode does:
+ * models often quote step numbers.
+ */
+export const Int = z.preprocess(
+  (v) => (typeof v === 'string' && /^\s*[-+]?\d+\s*$/.test(v) ? Number(v) : v),
+  z.number().int(),
+)
+
 /** Log step indices. JSON keys of `EvidencePackage.evidence` are their decimal strings. */
-const Steps = z.array(z.number().int()).default([])
+const Steps = z.array(Int).default([])
 const Strings = z.array(z.string()).default([])
 
 /** One proposition inside an information product (Appendix A.1). */
@@ -36,8 +45,8 @@ export type Claim = z.output<typeof Claim>
 /** A committed carrier version. Updates create a successor with the same `carrier_id`. */
 export const CarrierRecord = z.object({
   carrier_id: z.string(),
-  version: z.number().int().default(1),
-  predecessor_version: z.number().int().nullable().default(null),
+  version: Int.default(1),
+  predecessor_version: Int.nullable().default(null),
   carrier_type: CarrierType,
   /** Stable identity: a normalized file path, or a structured subject for findings/state. */
   subject: z.string(),
@@ -47,7 +56,7 @@ export const CarrierRecord = z.object({
   conditions: Strings,
   /** Only for information products. */
   claims: z.array(Claim).default([]),
-  committed_at_fold: z.number().int(),
+  committed_at_fold: Int,
 })
 export type CarrierRecord = z.output<typeof CarrierRecord>
 
@@ -58,7 +67,7 @@ export const CarrierEdit = z.object({
   /** `null` for a new carrier (the id is derived from type + subject); set to update an existing carrier. */
   carrier_id: z.string().nullable().default(null),
   /** For updates: the current version this edit was based on. Must be `null` for new carriers. */
-  base_version: z.number().int().nullable().default(null),
+  base_version: Int.nullable().default(null),
   carrier_type: CarrierType,
   subject: z.string(),
   summary: z.string(),
@@ -76,8 +85,8 @@ export const Candidate = z.object({
   supporting_steps: Steps,
   /** Set when the candidate updates an existing carrier. */
   target_carrier_id: z.string().nullable().default(null),
-  first_seen_step: z.number().int(),
-  last_revised_step: z.number().int(),
+  first_seen_step: Int,
+  last_revised_step: Int,
 })
 export type Candidate = z.output<typeof Candidate>
 
