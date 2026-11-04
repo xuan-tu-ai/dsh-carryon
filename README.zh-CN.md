@@ -5,7 +5,9 @@
 </p>
 
 <p align="center">
+  <a href="https://ethannju.github.io/carryon/"><img src="https://img.shields.io/badge/Project-Page-2d6bb1?style=flat-square" alt="Project Page"></a>
   <a href="https://arxiv.org/abs/2610.18784"><img src="https://img.shields.io/badge/arXiv-2610.18784-B31B1B?style=flat-square&amp;logo=arxiv&amp;logoColor=white" alt="arXiv 2610.18784"></a>
+  <a href="https://huggingface.co/papers/2610.18784"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fpapers%2F2610.18784&amp;query=%24.upvotes&amp;label=Hugging%20Face&amp;prefix=%E2%96%B2%20&amp;suffix=%20upvotes&amp;color=ffd21e&amp;logo=huggingface&amp;style=flat-square" alt="Hugging Face Paper upvotes"></a>
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xuan-tu-ai/dsh-carryon/ci.yml?branch=main&amp;style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square" alt="License Apache-2.0"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/dsh-0.2.2--alpha.3-4D6BFE?style=flat-square" alt="dsh 0.2.2-alpha.3"></a>
@@ -18,15 +20,16 @@
 
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（dsh）的会话变长时，dsh 会把较早的轮次总结成一段自由文本来压缩上下文。dsh-carryon 用论文 [*Pack Light, CarryOn*](https://arxiv.org/abs/2610.18784) 中的 **CarryOn** 替换这一步：较早的轮次被折叠（fold）成两部分。一部分是记录智能体已确立内容的小型、带版本的记录，称为“载体”（carrier）。另一部分是执行上下文，包含任务、未完成的义务和下一步。每次折叠在提交前都会经过校验，被拒绝的折叠不会改变任何东西。
 
+https://github.com/user-attachments/assets/5f4a6889-5cf6-41a4-aff1-327a9d5d6b7b
+
+<p align="center"><sub>论文作者制作的 CarryOn 演示视频，也可在<a href="https://ethannju.github.io/carryon/">项目主页</a>观看。</sub></p>
+
+<p align="center"><img src="https://raw.githubusercontent.com/Ethannju/carryon/2d5c8db78e136a74d6e1cccfdf984607b565ee6e/docs/assets/overview.png" alt="Overview of CarryOn" width="860"></p>
+<p align="center"><sub>论文中的 CarryOn 运行时示意图。在 dsh-carryon 中，何时折叠以及保留哪些最近轮次由 dsh 决定；Grounder 尚未移植（<a href="docs/how-it-works.md">详情</a>，英文）。</sub></p>
+
 [配置](docs/configuration.md) · [工作原理](docs/how-it-works.md) · [开发](docs/development.md) · [基准测试](bench/README.md) · [发布](docs/release.md) · [更新日志](CHANGELOG.md)
 
 以上文档为英文。
-
-> [!WARNING]
-> **实验性项目，尚未做基准评测。**
-> - 所有部分都已用真实的 dsh 和脚本化的假模型检查过。首个 npm 版本要等一次真实模型运行通过后才发布（见[发布门槛](docs/release.md#release-gate-real-model-smoke-test)）。
-> - 目前还没有任何 token 用量或质量的测量数据。
-> - 折叠会增加模型调用，因此会话成本可能高于 dsh 自带的压缩。
 
 ## 特性
 
@@ -53,18 +56,15 @@ flowchart LR
 
 ## 论文报告的结果
 
-以下数字来自论文（Lu、McAuley、Zhang，2026），智能体使用 Claude Opus 4.7 测得。dsh-carryon 尚未对照这些结果做过基准测试，见[状态](#状态)。
+以下结果来自论文（Lu、McAuley、Zhang，2026），智能体使用 Claude Opus 4.7。dsh-carryon 尚未对照这些结果做过基准测试。
 
-| 基准 | 指标 | 基线 | 使用 CarryOn |
-| --- | --- | --- | --- |
-| OSWorld 2.0 | 部分得分 | 43.9% | **49.7%** |
-| OSWorld 2.0 | 二值得分 | 15.7% | **19.4%** |
-| OSWorld 2.0 | 每个任务的总 token | 40.1M | **19.3M**（−51.9%） |
-| OSWorld 2.0 | 每个任务的成本 | $36.8 | **$23.6**（−35.9%） |
-| BrowseComp-Plus | 准确率 | 49.0% | **56.0%** |
-| BrowseComp-Plus | 每个任务的总 token | 1.56M | **1.20M**（−22.9%） |
+<p align="center"><img src="https://raw.githubusercontent.com/Ethannju/carryon/2d5c8db78e136a74d6e1cccfdf984607b565ee6e/docs/assets/osworld-results.png" alt="OSWorld 2.0 上的任务表现" width="760"></p>
+<p align="center"><sub>OSWorld 2.0。CarryOn 提高了同一个 Claude Opus 4.7 智能体的二值得分和部分得分，同时把每个任务的成本降低 35.9%。图片来自论文作者。</sub></p>
 
-收益来自长任务：论文中 OSWorld 的运行长达数百轮，使用 CarryOn 时平均输入上下文稳定在约 65K token，而不是每一轮都在增长。
+<p align="center"><img src="https://raw.githubusercontent.com/Ethannju/carryon/2d5c8db78e136a74d6e1cccfdf984607b565ee6e/docs/assets/context-and-cost.png" alt="OSWorld 2.0 上上下文与成本随轮次的变化" width="760"></p>
+<p align="center"><sub>OSWorld 2.0 上上下文与成本随智能体轮次的变化。基线的输入上下文持续增长到 200K token 以上，而 CarryOn 稳定在约 65K。图片来自论文作者。</sub></p>
+
+在 BrowseComp-Plus 上，论文报告准确率从 49.0% 提升到 56.0%，每个任务的 token 减少 22.9%。
 
 ## 快速开始
 
@@ -111,20 +111,6 @@ npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile tui remove dsh-carryon
 
 dsh 会用补丁中的 `config` 整体替换该行的配置，所以请把所有要改的键写在一起。全部键、默认值以及 Web UI 中的限制见[配置](docs/configuration.md)。
 
-## 状态
-
-| 里程碑 | 状态 |
-| --- | --- |
-| P0 验证 | ✅ 替换引擎，状态存入会话日志，Web UI 中的 CarryOn mode（[发现](docs/p0-findings.md)） |
-| P1 核心移植 | ✅ 记录、注册表、校验器和视图移植为 TypeScript；通过 carrycode 一致性测试用例 |
-| P2 角色与引擎 | ✅ 基于 dsh LLM 服务的 Tracker 与 Compiler，退避，退回（[说明](docs/p2-notes.md)） |
-| P3 基准测试 | 🟡 4 个带隐藏测试的任务，A/B 与 Web UI 运行器（[bench](bench/README.md)）；尚无真实模型运行 |
-| P4 发布 | 🟡 包、CI 和发布流程已就绪；npm 发布等待真实模型门槛 |
-
-尚未完成：carrycode 的 Grounder，即在提交前用代码仓库检查载体。
-
-已知问题：没有 Web UI 智能体预设（agent preset）的配置在启动时会打印一条无害的警告：`[dsh-carryon] patch: entry "agent-preset-registry" not found`。
-
 ## 引用
 
 dsh-carryon 实现的是这篇论文的方法。如果你在研究中使用它，请引用该论文：
@@ -145,4 +131,4 @@ carrycode 和 dsh-carryon 是仅依据论文完成的独立实现，与论文作
 
 ## 许可证
 
-[Apache-2.0](LICENSE)。
+dsh-carryon 的代码采用 [Apache-2.0](LICENSE)。上文的演示视频和图片属于论文作者，经作者许可在此展示，不在该许可证范围内。
