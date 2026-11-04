@@ -56,8 +56,8 @@ The `basic` run is there only for comparison.
 
 When the gate passes, before tagging:
 1. Put the ledger rows of `report.md` into `docs/p3-notes.md`, labelled "1 run per arm, anecdotal".
-2. Put one sentence about the run into the README's Status section.
-3. Remove the README sentence that says 0.1.0 is not on npm.
+2. Put one sentence about the run into the Status section of `README.md` and `README.zh-CN.md`.
+3. In both READMEs, remove the note that says 0.1.0 is not on npm.
 
 If it fails, fix the cause first. A run where every fold fell back to dsh's summary also fails, because it has no
 committed fold.
@@ -91,7 +91,9 @@ committed fold.
    3. It packs the tarball and runs the offline end-to-end check on that tarball.
    4. It publishes that same tarball with provenance.
    5. It creates a GitHub Release with the changelog section and the tarball.
-6. **Verify** the published package:
+6. **Add the npm badge.** After the first publish, add it to the badge row of both READMEs:
+   `<a href="https://www.npmjs.com/package/dsh-carryon"><img src="https://img.shields.io/npm/v/dsh-carryon?style=flat-square&amp;logo=npm" alt="npm"></a>`.
+7. **Verify** the published package:
 
    ```bash
    npm view dsh-carryon version
