@@ -54,6 +54,23 @@ A fold costs one Tracker call, plus one Compiler call when the Tracker asks for 
 makes one summary call. The engine, the state format and how this port differs from the paper are described in
 [How it works](docs/how-it-works.md).
 
+## Results reported in the paper
+
+These numbers come from the paper (Lu, McAuley, Zhang, 2026), measured with Claude Opus 4.7 as the agent. dsh-carryon
+has not been benchmarked against them; see [Status](#status).
+
+| Benchmark | Metric | Baseline | With CarryOn |
+| --- | --- | --- | --- |
+| OSWorld 2.0 | Partial score | 43.9% | **49.7%** |
+| OSWorld 2.0 | Binary score | 15.7% | **19.4%** |
+| OSWorld 2.0 | Total tokens per task | 40.1M | **19.3M** (−51.9%) |
+| OSWorld 2.0 | Cost per task | $36.8 | **$23.6** (−35.9%) |
+| BrowseComp-Plus | Accuracy | 49.0% | **56.0%** |
+| BrowseComp-Plus | Total tokens per task | 1.56M | **1.20M** (−22.9%) |
+
+The gains come from long tasks: in the paper, OSWorld runs last hundreds of turns, and the mean input context with
+CarryOn levels off near 65K tokens instead of growing with every turn.
+
 ## Quick start
 
 You need [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3** (each dsh-carryon release supports
