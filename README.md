@@ -123,21 +123,6 @@ half of the context window and run the CarryOn roles on the cheaper `deepseek-fl
 dsh replaces a row's whole `config` with the patched one, so list all your keys together. See
 [Configuration](docs/configuration.md) for every key, the defaults, and the Web UI's limits.
 
-## Status
-
-| Milestone | State |
-| --- | --- |
-| P0 spike | ✅ engine swap, state in the session log, CarryOn mode in the Web UI ([findings](docs/p0-findings.md)) |
-| P1 core port | ✅ records, registry, validator and view in TypeScript; carrycode parity fixtures pass |
-| P2 roles + engine | ✅ Tracker and Compiler over dsh's LLM service, backoff, fallback ([notes](docs/p2-notes.md)) |
-| P3 benchmark | 🟡 4 tasks with hidden tests, A/B and Web UI runners ([bench](bench/README.md)); no real-model runs yet |
-| P4 release | 🟡 package, CI and release workflow ready; npm publish waits for the real-model gate |
-
-Not done yet: carrycode's Grounder, which would check carriers against the repository before commit.
-
-Known issue: profiles without the Web UI's agent presets print one harmless warning at startup,
-`[dsh-carryon] patch: entry "agent-preset-registry" not found`.
-
 ## Citation
 
 dsh-carryon implements the method of this paper. If you use it in research, please cite the paper:
