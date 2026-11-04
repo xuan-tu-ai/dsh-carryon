@@ -10,8 +10,8 @@ compaction plugin for [DeepSeek Harness](https://github.com/deepseek-ai/deepseek
 This is the TypeScript port of the CarryOn runtime from [carrycode](https://github.com/xuan-tu-ai/carrycode),
 packaged as a dsh bundle. carrycode stays the reference implementation and the source of the runtime prompts.
 The design is carrycode's [`docs/design/dsh-plugin.md`](https://github.com/xuan-tu-ai/carrycode/blob/main/docs/design/dsh-plugin.md).
-What the spike found is in [`docs/p0-findings.md`](docs/p0-findings.md); P2's decisions are in
-[`docs/p2-notes.md`](docs/p2-notes.md).
+What the spike found is in [`docs/p0-findings.md`](docs/p0-findings.md); P2's and P3's decisions are in
+[`docs/p2-notes.md`](docs/p2-notes.md) and [`docs/p3-notes.md`](docs/p3-notes.md). The benchmark is in [`bench/`](bench/README.md).
 
 carrycode and dsh-carryon are independent reimplementations built from the paper alone. They are not
 affiliated with the paper's authors or with DeepSeek.
@@ -61,7 +61,7 @@ Differences from carrycode's measured configuration:
 | P0 spike | done: engine swap, state in `rawOutput`, web CarryOn mode ([findings](docs/p0-findings.md)) |
 | P1 core port | done: `records`, `registry`, `validator`, `view` in TS; carrycode parity fixtures pass |
 | P2 roles + engine | done offline: Tracker/Compiler over `ctx.llm`, state v1, backoff, fallback ([notes](docs/p2-notes.md)); real-model run pending |
-| P3 dogfood | not started |
+| P3 dogfood | infrastructure done: 4 tasks with hidden tests, headless A/B runner, Web UI runner, report ([bench](bench/README.md), [notes](docs/p3-notes.md)); real-model runs pending, no measurements yet |
 
 The port is checked against carrycode's parity fixtures for records, registry, validator, view and the role
 messages and reply handling. The fixtures and the role prompts are vendored from the carrycode commit recorded
@@ -178,9 +178,10 @@ node scripts/read-session-log.mjs "$DSH_HOME"/sessions/*/<session-id>/session.v4
 | `web-preset.patch.yml` | generated "CarryOn mode" preset for web profiles (`pnpm gen:web-preset`) |
 | `web-default.patch.yml` | makes CarryOn mode the default preset |
 | `scripts/` | fake Messages server, offline check, session-log reader, overlays, carrycode sync |
+| `bench/`, `scripts/bench/` | P3 benchmark: tasks with hidden tests, grader, headless and Web UI runners, metrics, report |
 | `test/` | unit tests (`node --test`, no network), fold tests with scripted roles, parity test |
 | `test/fixtures/parity/` | carrycode's parity fixtures |
-| `docs/` | P0 findings, P2 notes |
+| `docs/` | P0 findings, P2 and P3 notes |
 
 ## License
 

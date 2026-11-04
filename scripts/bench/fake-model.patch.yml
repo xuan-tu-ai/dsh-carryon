@@ -1,0 +1,8 @@
+# Model overlay for `run.mjs --fake`: the fake Messages server's model with a 64k-token window, so a fake agent's
+# tool outputs fill the context and both arms compact within one turn.
+- id: llm-deepseek
+  config:
+    models:
+      - id: deepseek-flash
+        contextWindow: 64000
+        maxTokens: 2000

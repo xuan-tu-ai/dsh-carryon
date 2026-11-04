@@ -8,9 +8,11 @@
 //   compile request citing it, so every scan leads to a fold.
 // - dsh-carryon Compiler ("# Compiler System Prompt"): one new carrier per selected candidate, citing the evidence.
 // - dsh's own compaction summary (last user message is its compaction instruction): a short Markdown checkpoint.
-// - anything else (agent turns): plain text of --reply-chars characters.
+// - agent turns: plain text of --reply-chars characters. With --agent-steps N, the first N steps of each turn also
+//   call dsh's `bash` tool with read-only commands (listing, reading files, running the tests), so tool calls and
+//   their results go through compaction; step N+1 ends the turn.
 //
-// Usage: node scripts/fake-messages-server.mjs [--port 8787] [--reply-chars 1200] [--log requests.jsonl]
+// Usage: node scripts/fake-messages-server.mjs [--port 8787] [--reply-chars 1200] [--agent-steps 0] [--log file]
 // Then run dsh with DEEPSEEK_BASE_URL=http://127.0.0.1:<port> DEEPSEEK_API_KEY=fake.
 
 import { createServer } from 'node:http'
@@ -21,12 +23,36 @@ const { values } = parseArgs({
   options: {
     port: { type: 'string', default: '8787' },
     'reply-chars': { type: 'string', default: '1200' },
+    'agent-steps': { type: 'string', default: '0' },
     log: { type: 'string' },
   },
 })
 const port = Number(values.port)
 const replyChars = Number(values['reply-chars'])
+const agentSteps = Number(values['agent-steps'])
 let calls = 0
+let agentStep = 0
+
+/** Read-only commands the fake agent runs, in rotation; they work in every bench/tasks repository. */
+const COMMANDS = [
+  'ls -la',
+  'cat SPEC.md',
+  'python3 -m unittest discover -s tests 2>&1 | tail -40',
+  'cat *.py */*.py 2>/dev/null | head -300',
+  'grep -rn "def " --include=*.py . | head -80',
+  'head -400 data/access.log 2>/dev/null || cat README.md',
+]
+
+/** The bash tool call for this agent request, or null to end the turn. */
+function agentToolCall(request) {
+  if (agentSteps <= 0 || !Array.isArray(request.tools) || !request.tools.some(t => t?.name === 'bash')) return null
+  const last = request.messages?.at(-1)
+  const continuing = last?.role === 'user' && Array.isArray(last.content) && last.content.some(b => b?.type === 'tool_result')
+  agentStep = continuing ? agentStep + 1 : 0
+  if (agentStep >= agentSteps) return null
+  const command = COMMANDS[agentStep % COMMANDS.length]
+  return { id: `toolu_fake_${calls}`, name: 'bash', input: { command, description: `Fake agent step ${agentStep + 1}` } }
+}
 
 const FILLER =
   'This is a scripted reply from the dsh-carryon fake Messages server. It stands in for a model so the ' +
@@ -116,13 +142,17 @@ const server = createServer((req, res) => {
     const inputTokens = Math.ceil(raw.length / 4)
     const system = systemText(request)
     const user = lastUserText(request)
-    const text = system.startsWith('# Tracker System Prompt') ? JSON.stringify(trackerReply(user))
-      : system.startsWith('# Compiler System Prompt') ? JSON.stringify(compilerReply(user))
-        : user.includes('You are now acting as a compaction engine') ? '## Primary Request and Intent\n- fake dsh summary\n'
+    const kind = system.startsWith('# Tracker System Prompt') ? 'tracker'
+      : system.startsWith('# Compiler System Prompt') ? 'compiler'
+        : user.includes('You are now acting as a compaction engine') ? 'dsh-summary' : 'agent'
+    const text = kind === 'tracker' ? JSON.stringify(trackerReply(user))
+      : kind === 'compiler' ? JSON.stringify(compilerReply(user))
+        : kind === 'dsh-summary' ? '## Primary Request and Intent\n- fake dsh summary\n'
           : replyText(n, user)
+    const tool = kind === 'agent' ? agentToolCall(request) : null
     const outputTokens = Math.ceil(text.length / 4)
     if (values.log) {
-      appendFileSync(values.log, JSON.stringify({ n, model: request.model, kind: system.startsWith('# Tracker') ? 'tracker' : system.startsWith('# Compiler') ? 'compiler' : (user.includes('You are now acting as a compaction engine') ? 'dsh-summary' : 'agent'), messages: request.messages?.length, inputTokens }) + '\n')
+      appendFileSync(values.log, JSON.stringify({ n, model: request.model, kind, tool: tool?.input.command, messages: request.messages?.length, inputTokens }) + '\n')
     }
     if (request.stream === false) {
       res.writeHead(200, { 'content-type': 'application/json' })
@@ -146,7 +176,12 @@ const server = createServer((req, res) => {
       sse(res, 'content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: text.slice(i, i + 400) } })
     }
     sse(res, 'content_block_stop', { type: 'content_block_stop', index: 0 })
-    sse(res, 'message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn', stop_sequence: null }, usage: { output_tokens: outputTokens } })
+    if (tool) {
+      sse(res, 'content_block_start', { type: 'content_block_start', index: 1, content_block: { type: 'tool_use', id: tool.id, name: tool.name, input: {} } })
+      sse(res, 'content_block_delta', { type: 'content_block_delta', index: 1, delta: { type: 'input_json_delta', partial_json: JSON.stringify(tool.input) } })
+      sse(res, 'content_block_stop', { type: 'content_block_stop', index: 1 })
+    }
+    sse(res, 'message_delta', { type: 'message_delta', delta: { stop_reason: tool ? 'tool_use' : 'end_turn', stop_sequence: null }, usage: { output_tokens: outputTokens } })
     sse(res, 'message_stop', { type: 'message_stop' })
     res.end()
   })

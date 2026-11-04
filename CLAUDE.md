@@ -6,7 +6,7 @@ Guidance for Claude Code working in this repository.
 
 dsh-carryon ports the CarryOn runtime of [carrycode](https://github.com/xuan-tu-ai/carrycode) to TypeScript as a
 DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plugin.md`. Spike results:
-`docs/p0-findings.md`; P2 decisions: `docs/p2-notes.md`.
+`docs/p0-findings.md`; P2 and P3 decisions: `docs/p2-notes.md`, `docs/p3-notes.md`; benchmark: `bench/README.md`.
 
 ## Hard rules
 
@@ -24,6 +24,9 @@ DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plu
   and error messages are part of the contract. `prompts/` and the fixtures are vendored: never edit them here.
 - **Node runs the TS sources directly** (`--experimental-strip-types`): only erasable syntax (no parameter
   properties, enums or namespaces; `erasableSyntaxOnly` is on).
+- **Benchmark validity.** Never put hidden tests or solutions into a task's `repo/`; run `scripts/bench/check-tasks.mjs`
+  after editing a task. Benchmark output stays outside this repository. Report only measured numbers, with run
+  counts; fake-model runs check the pipeline and say nothing about CarryOn.
 - Unit tests run offline: no API keys, no network. End-to-end checks use `scripts/fake-messages-server.mjs`.
 
 ## Git authorship
@@ -42,6 +45,9 @@ pnpm gen:web-preset            # regenerate web-preset.patch.yml after a dsh upg
 pnpm check:web-preset          # fails if web-preset.patch.yml is out of date
 pnpm sync:carrycode ../carrycode --ref <commit>   # vendor carrycode's prompts and parity fixtures
 pnpm sync:carrycode ../carrycode --check          # fails if they differ from the pinned carrycode commit
+node scripts/bench/check-tasks.mjs                # benchmark tasks: start fails, reference solution passes
+node scripts/bench/run.mjs --fake --overlay scripts/bench/fake-model.patch.yml --threshold-ratio 0.5 --retain-tokens 2000 --headroom-tokens 4000
+node scripts/bench/report.mjs <out-dir>           # Markdown report of a benchmark run
 ```
 
 ## Style
