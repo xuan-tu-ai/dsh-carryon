@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "CarryOn compaction",
+    "description": "Folds long sessions into CarryOn carriers (arXiv:2610.18784) instead of a free-text summary. Experimental."
+  }
+}

@@ -38,6 +38,9 @@ export function sessionMetrics(events) {
   let carryonFolds = 0
   let otherSummaries = 0
   let shadowedTokens = 0
+  let committedCarryOn = 0
+  let pendingCarryOn = false
+  let firstFoldAtStep = null
   const turnEnds = {}
   for (const e of events) {
     const d = e.data ?? {}
@@ -49,12 +52,20 @@ export function sessionMetrics(events) {
     } else if (e.type === 'compaction/summary') {
       add(compaction, d.usage)
       shadowedTokens += d.shadowedTokenCount ?? 0
-      if (hasCarryOnState(d.rawOutput)) carryonFolds += 1
+      pendingCarryOn = hasCarryOnState(d.rawOutput)
+      if (pendingCarryOn) carryonFolds += 1
       else otherSummaries += 1
-    } else if (e.type === 'compaction/end' && d.error !== undefined) {
-      failed += 1
-      const m = RUNTIME_USAGE.exec(String(d.error))
-      if (m) add(compaction, JSON.parse(m[1]))
+    } else if (e.type === 'compaction/end') {
+      if (d.error !== undefined) {
+        failed += 1
+        const m = RUNTIME_USAGE.exec(String(d.error))
+        if (m) add(compaction, JSON.parse(m[1]))
+      } else if (pendingCarryOn) {
+        // A CarryOn fold counts once dsh's compaction/end reports success (src/projection.ts does the same).
+        committedCarryOn += 1
+        firstFoldAtStep ??= agent.calls
+      }
+      pendingCarryOn = false
     } else if (e.type === 'turn/end') {
       const reason = d.reason?.kind ?? 'unknown'
       turnEnds[reason] = (turnEnds[reason] ?? 0) + 1
@@ -72,7 +83,9 @@ export function sessionMetrics(events) {
     agent,
     compaction,
     total,
-    compactions: { started: starts, failed, carryonFolds, otherSummaries, shadowedTokens },
+    compactions: { started: starts, failed, carryonFolds, committedCarryOn, otherSummaries, shadowedTokens },
+    // Agent steps after the first committed CarryOn fold (null without one): did the session go on after a fold?
+    stepsAfterFirstFold: firstFoldAtStep === null ? null : agent.calls - firstFoldAtStep,
     turnEnds,
   }
 }
