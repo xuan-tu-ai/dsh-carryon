@@ -24,13 +24,6 @@ Each fold is validated before it is committed, and a rejected fold changes nothi
 
 [Configuration](docs/configuration.md) · [How it works](docs/how-it-works.md) · [Development](docs/development.md) · [Benchmark](bench/README.md) · [Releasing](docs/release.md) · [Changelog](CHANGELOG.md)
 
-> [!WARNING]
-> **Experimental and not benchmarked.**
-> - Everything has been checked with real dsh and a scripted fake model. The first npm release waits for a
->   real-model run ([release gate](docs/release.md#release-gate-real-model-smoke-test)).
-> - There are no token or quality measurements yet.
-> - Folds add model calls, so a session can cost more than with dsh's own compaction.
-
 ## Highlights
 
 - **Drop-in backend.** dsh-carryon replaces dsh's compaction in the terminal, headless, SDK and ACP profiles. dsh
