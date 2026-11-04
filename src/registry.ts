@@ -40,6 +40,17 @@ export class CarrierStore {
   /** carrier id → versions, oldest first; insertion order is first-commit order. */
   private readonly versions = new Map<string, CarrierRecord[]>()
 
+  /**
+   * A store whose history is only the given current versions. CarryOn state keeps current versions only; the
+   * version chain stays checkable because `apply` compares against the current version.
+   * @param current - current version of each carrier, in first-commit order.
+   */
+  static fromCurrent(current: readonly CarrierRecord[]): CarrierStore {
+    const store = new CarrierStore()
+    for (const r of current) store.versions.set(r.carrier_id, [r])
+    return store
+  }
+
   /** @returns the current version of every carrier, in first-commit order. */
   current(): CarrierRecord[] {
     return [...this.versions.values()].map((v) => v.at(-1)!)
