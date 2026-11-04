@@ -31,6 +31,8 @@ release process: `docs/release.md`.
 - **Releases.** Each release supports exactly one dsh release (`engines.dsh`; scripts and CI read it from there).
   Never push a version tag or publish to npm unless the user asks; the real-model gate in `docs/release.md`
   (`scripts/bench/smoke-gate.mjs`) comes first. Keep `CHANGELOG.md` current.
+- **Docs.** `README.md` (English) and `README.zh-CN.md` say the same thing; change both together. The README stays
+  short; details go to `docs/configuration.md`, `docs/how-it-works.md`, `docs/development.md`.
 - Unit tests run offline: no API keys, no network. End-to-end checks use `scripts/fake-messages-server.mjs`.
 
 ## Git authorship
