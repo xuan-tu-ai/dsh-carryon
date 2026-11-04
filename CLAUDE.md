@@ -6,7 +6,8 @@ Guidance for Claude Code working in this repository.
 
 dsh-carryon ports the CarryOn runtime of [carrycode](https://github.com/xuan-tu-ai/carrycode) to TypeScript as a
 DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plugin.md`. Spike results:
-`docs/p0-findings.md`; P2 and P3 decisions: `docs/p2-notes.md`, `docs/p3-notes.md`; benchmark: `bench/README.md`.
+`docs/p0-findings.md`; P2 and P3 decisions: `docs/p2-notes.md`, `docs/p3-notes.md`; benchmark: `bench/README.md`;
+release process: `docs/release.md`.
 
 ## Hard rules
 
@@ -27,6 +28,9 @@ DeepSeek Harness (dsh) compaction plugin. Design: carrycode `docs/design/dsh-plu
 - **Benchmark validity.** Never put hidden tests or solutions into a task's `repo/`; run `scripts/bench/check-tasks.mjs`
   after editing a task. Benchmark output stays outside this repository. Report only measured numbers, with run
   counts; fake-model runs check the pipeline and say nothing about CarryOn.
+- **Releases.** Each release supports exactly one dsh release (`engines.dsh`; scripts and CI read it from there).
+  Never push a version tag or publish to npm unless the user asks; the real-model gate in `docs/release.md`
+  (`scripts/bench/smoke-gate.mjs`) comes first. Keep `CHANGELOG.md` current.
 - Unit tests run offline: no API keys, no network. End-to-end checks use `scripts/fake-messages-server.mjs`.
 
 ## Git authorship
@@ -41,6 +45,7 @@ pnpm install
 pnpm typecheck && pnpm test
 pnpm build                     # lib/, required before `dsh plugin add file:...`
 scripts/offline-check.sh       # real dsh + fake Messages server (scripted roles), checks the session log
+PLUGIN_SPEC=/abs/dsh-carryon-x.y.z.tgz scripts/offline-check.sh   # same, on a packed tarball (npm pack)
 pnpm gen:web-preset            # regenerate web-preset.patch.yml after a dsh upgrade (never edit it by hand)
 pnpm check:web-preset          # fails if web-preset.patch.yml is out of date
 pnpm sync:carrycode ../carrycode --ref <commit>   # vendor carrycode's prompts and parity fixtures
@@ -48,6 +53,7 @@ pnpm sync:carrycode ../carrycode --check          # fails if they differ from th
 node scripts/bench/check-tasks.mjs                # benchmark tasks: start fails, reference solution passes
 node scripts/bench/run.mjs --fake --overlay scripts/bench/fake-model.patch.yml --threshold-ratio 0.5 --retain-tokens 2000 --headroom-tokens 4000
 node scripts/bench/report.mjs <out-dir>           # Markdown report of a benchmark run
+node scripts/bench/smoke-gate.mjs <out-dir>       # release gate on a real-model run (docs/release.md)
 ```
 
 ## Style

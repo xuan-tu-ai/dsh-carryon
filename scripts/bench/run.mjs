@@ -24,7 +24,7 @@
 //   --timeout-minutes N      override the tasks' time limits
 //   --fake                   offline check: start scripts/fake-messages-server.mjs with a tool-calling fake agent
 //   --fake-agent-steps N     steps per fake agent turn (default 40)
-// Env: DSH_BIN (default: npx --yes @deepseek-ai/dsh@0.2.2-alpha.2), plus the model's own variables
+// Env: DSH_BIN (default: npx --yes @deepseek-ai/dsh@<engines.dsh in package.json>), plus the model's own variables
 // (DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL) for real runs.
 import { execFileSync, spawn } from 'node:child_process'
 import { appendFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -37,7 +37,7 @@ import { sessionMetrics } from './metrics.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const TASKS_DIR = join(ROOT, 'bench', 'tasks')
-const DSH_VERSION = '0.2.2-alpha.2'
+const DSH_VERSION = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).engines.dsh
 
 const { values: opt } = parseArgs({
   options: {

@@ -27,7 +27,7 @@ import { sessionMetrics } from './metrics.mjs'
 
 const { chromium } = createRequire(import.meta.url)('playwright')
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
-const DSH_VERSION = '0.2.2-alpha.2'
+const DSH_VERSION = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).engines.dsh
 const FOLLOW_UP = 'Continue. Run the visible tests, re-read SPEC.md for requirements you have not covered yet, and finish the task.'
 const MODES = { carryon: 'CarryOn mode', basic: 'Standard mode' }
 
@@ -176,14 +176,18 @@ async function runMode(arm) {
   try { process.kill(-server.pid, 'SIGTERM') } catch {}
   await sleep(1000)
 
-  const header = readSessionEvents(log).find((e) => e.type === 'session')
+  // The session header names the default preset at creation; choosing a mode in the menu is an agent-preset/selected
+  // event, so the last one wins.
+  const allEvents = readSessionEvents(log)
+  const header = allEvents.find((e) => e.type === 'session')
+  const selected = allEvents.filter((e) => e.type === 'agent-preset/selected').at(-1)?.data?.agentPreset
   const grade = JSON.parse(execFileSync('python3', [join(ROOT, 'bench', 'grade.py'), workdir, join(taskDir, 'hidden')], { encoding: 'utf8' }))
   const events = readSessionEvents(log)
   const metrics = sessionMetrics(events)
   const contaminated = events.some((e) => JSON.stringify(e).includes(join(ROOT, 'bench', 'tasks')))
   const record = { task: opt.task, arm, repeat: 1, surface: 'web', mode: MODES[arm], exitCode: 0, timedOut,
     wallSeconds: Math.round((Date.now() - started) / 1000), sessionId: dir.split('/').at(-1), grade, metrics, contaminated, sessionLog: log, workdir,
-    agentPreset: header?.agentPreset ?? null }
+    agentPreset: selected ?? header?.agentPreset ?? null }
   appendFileSync(join(out, 'results.jsonl'), `${JSON.stringify(record)}\n`)
   console.log(`${MODES[arm]}: preset ${record.agentPreset}, ${metrics.steps} steps, ${metrics.compactions.carryonFolds} CarryOn folds, `
     + `${metrics.compactions.otherSummaries} dsh summaries, hidden ${grade.passed}/${grade.tests}${timedOut ? ', timed out' : ''}`)

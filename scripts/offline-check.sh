@@ -7,10 +7,12 @@
 # Env:   DSH_BIN   dsh command to use (default: npx --yes @deepseek-ai/dsh@<engines.dsh pin>)
 #        WORK      scratch directory (default: a new mktemp dir; holds DSH_HOME and the session cwd)
 #        PORT      fake server port (default 8787)
+#        PLUGIN_SPEC  what `dsh plugin add` installs (default: file:<this checkout>, built first). Set it to a tarball from
+#                  `npm pack` (absolute path) to check the package exactly as it would be published.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DSH_VERSION="0.2.2-alpha.2"
+DSH_VERSION="$(node -p "require('$ROOT/package.json').engines.dsh")"
 read -r -a DSH <<< "${DSH_BIN:-npx --yes @deepseek-ai/dsh@$DSH_VERSION}"
 WORK="${WORK:-$(mktemp -d)}"
 PORT="${PORT:-8787}"
@@ -22,14 +24,19 @@ export DEEPSEEK_API_KEY="fake-key-for-the-offline-server"
 mkdir -p "$DSH_HOME" "$WORK/repo"
 echo "work dir: $WORK"
 
-(cd "$ROOT" && pnpm -s build)
+PLUGIN_SPEC="${PLUGIN_SPEC:-}"
+if [ -z "$PLUGIN_SPEC" ]; then
+  (cd "$ROOT" && pnpm -s build)
+  PLUGIN_SPEC="file:$ROOT"
+fi
+echo "plugin: $PLUGIN_SPEC"
 
 node "$ROOT/scripts/fake-messages-server.mjs" --port "$PORT" --reply-chars 12000 --log "$WORK/fake-requests.jsonl" &
 FAKE_PID=$!
 trap 'kill "$FAKE_PID" 2>/dev/null || true' EXIT
 sleep 1
 
-"${DSH[@]}" plugin --profile headless add "file:$ROOT" >/dev/null
+"${DSH[@]}" plugin --profile headless add "$PLUGIN_SPEC" >/dev/null
 "${DSH[@]}" --profile headless --dump-config > "$WORK/config.yml"
 grep "name: dsh-carryon" "$WORK/config.yml" >/dev/null || { echo "dsh-carryon row missing" >&2; exit 1; }
 

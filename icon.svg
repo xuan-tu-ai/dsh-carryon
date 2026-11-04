@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CarryOn compaction">
+  <rect width="64" height="64" rx="14" fill="#1f4e79"/>
+  <rect x="14" y="14" width="36" height="7" rx="3.5" fill="#9fc5e8"/>
+  <rect x="14" y="26" width="36" height="7" rx="3.5" fill="#cfe2f3"/>
+  <rect x="14" y="38" width="22" height="7" rx="3.5" fill="#ffffff"/>
+  <path d="M42 36 l8 5.5 l-8 5.5 z" fill="#ffd966"/>
+</svg>
