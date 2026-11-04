@@ -1,0 +1,60 @@
+# Publish to npm when a version tag (v1.2.3) is pushed. See docs/release.md, including the real-model release gate
+# that comes before tagging. Needs the repository secret NPM_TOKEN.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # GitHub Release
+  id-token: write # npm provenance
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+      - run: pnpm install --frozen-lockfile
+      - name: Tag, package.json and CHANGELOG agree
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if [ "$GITHUB_REF_NAME" != "v$VERSION" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match package.json version $VERSION"; exit 1
+          fi
+          if ! grep -Eq "^## ${VERSION//./\\.} \([0-9]{4}-[0-9]{2}-[0-9]{2}\)$" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md needs a section '## $VERSION (YYYY-MM-DD)'"; exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm check:web-preset
+      - name: Pack the npm tarball
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP"
+          echo "TARBALL=$RUNNER_TEMP/dsh-carryon-$VERSION.tgz" >> "$GITHUB_ENV"
+      - name: Offline end-to-end check on the tarball
+        run: PLUGIN_SPEC="$TARBALL" scripts/offline-check.sh
+      - name: Publish the checked tarball
+        run: npm publish "$TARBALL" --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: GitHub Release
+        run: |
+          awk -v v="$VERSION" '$0 ~ "^## " v " " {f=1; next} /^## /{f=0} f' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          gh release create "$GITHUB_REF_NAME" "$TARBALL" --title "dsh-carryon $VERSION" --notes-file "$RUNNER_TEMP/notes.md"
+        env:
+          GH_TOKEN: ${{ github.token }}

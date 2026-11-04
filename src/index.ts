@@ -8,7 +8,7 @@
  * @module dsh-carryon
  */
 
-export { CarryOnCompactionEngine, CarryOnFoldError, cooldown, FAIL_ENV, PROVIDER, splitConfig } from './engine.ts'
+export { CarryOnCompactionEngine, CarryOnFoldError, cooldown, FAIL_ENV, formatRuntimeUsage, PROVIDER, RUNTIME_USAGE_MARK, splitConfig } from './engine.ts'
 export type { CarryOnConfig, CarryOnSummaryResult, SessionMemory, SummarizationInput } from './engine.ts'
 export { applyCarryOnProjection, carryOnProjectionDefinition, PROJECTION_KEY } from './projection.ts'
 export type { CarryOnProjectionState } from './projection.ts'

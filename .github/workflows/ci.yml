@@ -1,0 +1,61 @@
+# Tests on every pull request and push to main. Needs no secrets: the end-to-end check uses the fake Messages server.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Web preset matches the pinned dsh-web-app
+        run: pnpm check:web-preset
+      - name: Vendored prompts and parity fixtures match the pinned carrycode commit
+        run: |
+          COMMIT="$(node -p "require('./carrycode.lock.json').commit")"
+          git init -q "$RUNNER_TEMP/carrycode"
+          git -C "$RUNNER_TEMP/carrycode" fetch -q --depth 1 https://github.com/xuan-tu-ai/carrycode.git "$COMMIT"
+          pnpm sync:carrycode "$RUNNER_TEMP/carrycode" --check
+      - name: Benchmark tasks (start fails, reference solution passes)
+        run: node scripts/bench/check-tasks.mjs
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Pack the npm tarball
+        run: |
+          npm pack --pack-destination "$RUNNER_TEMP"
+          echo "TARBALL=$RUNNER_TEMP/dsh-carryon-$(node -p "require('./package.json').version").tgz" >> "$GITHUB_ENV"
+      - name: Offline end-to-end check on the tarball (real dsh, fake model)
+        run: PLUGIN_SPEC="$TARBALL" scripts/offline-check.sh

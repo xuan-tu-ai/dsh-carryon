@@ -1,0 +1,6 @@
+{
+  "id": "calc",
+  "kind": "algorithmic build",
+  "prompt": "Implement calc.py in this repository as specified in SPEC.md: a tokenizer and an expression evaluator with exact error positions. Run the visible tests with `python3 -m unittest discover -s tests`. Hidden tests check every requirement in SPEC.md, including error positions, so implement all of it. Do not edit SPEC.md or the files in tests/.",
+  "timeoutMinutes": 40
+}

@@ -1,0 +1,6 @@
+{
+  "id": "ledger",
+  "kind": "build from a spec",
+  "prompt": "Implement the `ledger` package in this repository as specified in SPEC.md. Run the visible tests with `python3 -m unittest discover -s tests`. Hidden tests check every requirement in SPEC.md, so implement all of it, not only what the visible tests exercise. Do not edit SPEC.md or the files in tests/.",
+  "timeoutMinutes": 40
+}

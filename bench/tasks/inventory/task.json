@@ -1,0 +1,6 @@
+{
+  "id": "inventory",
+  "kind": "find and fix bugs",
+  "prompt": "Users report that the inventory module in this repository misbehaves. Find and fix every place where inventory.py deviates from SPEC.md. Some visible tests fail (`python3 -m unittest discover -s tests`), but there are more bugs than the visible tests catch, and hidden tests check every requirement in SPEC.md. Keep the public API unchanged. Do not edit SPEC.md or the files in tests/.",
+  "timeoutMinutes": 30
+}
