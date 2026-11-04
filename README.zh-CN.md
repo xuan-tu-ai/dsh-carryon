@@ -51,6 +51,21 @@ flowchart LR
 
 检查点包含所有载体和执行上下文，dsh 会在它之后原样保留最近的轮次。每次折叠调用一次 Tracker；Tracker 请求编译时，再调用一次 Compiler。dsh 自带的压缩只调用一次总结。引擎、状态格式以及本移植与论文的差异，见[工作原理](docs/how-it-works.md)。
 
+## 论文报告的结果
+
+以下数字来自论文（Lu、McAuley、Zhang，2026），智能体使用 Claude Opus 4.7 测得。dsh-carryon 尚未对照这些结果做过基准测试，见[状态](#状态)。
+
+| 基准 | 指标 | 基线 | 使用 CarryOn |
+| --- | --- | --- | --- |
+| OSWorld 2.0 | 部分得分 | 43.9% | **49.7%** |
+| OSWorld 2.0 | 二值得分 | 15.7% | **19.4%** |
+| OSWorld 2.0 | 每个任务的总 token | 40.1M | **19.3M**（−51.9%） |
+| OSWorld 2.0 | 每个任务的成本 | $36.8 | **$23.6**（−35.9%） |
+| BrowseComp-Plus | 准确率 | 49.0% | **56.0%** |
+| BrowseComp-Plus | 每个任务的总 token | 1.56M | **1.20M**（−22.9%） |
+
+收益来自长任务：论文中 OSWorld 的运行长达数百轮，使用 CarryOn 时平均输入上下文稳定在约 65K token，而不是每一轮都在增长。
+
 ## 快速开始
 
 需要 [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3**（每个 dsh-carryon 版本只支持一个 dsh 版本）、Node.js 22 或更高版本，以及 pnpm。
