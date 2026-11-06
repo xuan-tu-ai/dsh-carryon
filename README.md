@@ -10,13 +10,13 @@
   <a href="https://huggingface.co/papers/2610.18784"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fhuggingface.co%2Fapi%2Fpapers%2F2610.18784&amp;query=%24.upvotes&amp;label=Hugging%20Face&amp;prefix=%E2%96%B2%20&amp;suffix=%20upvotes&amp;color=ffd21e&amp;logo=huggingface&amp;style=flat-square" alt="Hugging Face Paper upvotes"></a>
   <a href="https://www.npmjs.com/package/dsh-carryon"><img src="https://img.shields.io/npm/v/dsh-carryon?style=flat-square&amp;logo=npm" alt="npm"></a>
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xuan-tu-ai/dsh-carryon/ci.yml?branch=main&amp;style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square" alt="License Apache-2.0"></a>
+  <a href="https://github.com/xuan-tu-ai/dsh-carryon/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square" alt="License Apache-2.0"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/dsh-0.2.2--alpha.3-4D6BFE?style=flat-square" alt="dsh 0.2.2-alpha.3"></a>
   <img src="https://img.shields.io/badge/Node.js-%E2%89%A522-339933?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 22 or later">
 </p>
 
 <p align="center">
-  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+  <strong>English</strong> · <a href="https://github.com/xuan-tu-ai/dsh-carryon/blob/main/README.zh-CN.md">简体中文</a>
 </p>
 
 When a [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (dsh) session grows long, dsh compacts it
@@ -30,9 +30,9 @@ https://github.com/user-attachments/assets/5f4a6889-5cf6-41a4-aff1-327a9d5d6b7b
 <p align="center"><sub>CarryOn demo by the paper's authors. Also on the <a href="https://ethannju.github.io/carryon/">project page</a>.</sub></p>
 
 <p align="center"><img src="https://raw.githubusercontent.com/Ethannju/carryon/2d5c8db78e136a74d6e1cccfdf984607b565ee6e/docs/assets/overview.png" alt="Overview of CarryOn" width="860"></p>
-<p align="center"><sub>The CarryOn runtime, from the paper. In dsh-carryon, dsh decides when to fold and keeps the recent turns; the Grounder is not ported yet (<a href="docs/how-it-works.md">details</a>).</sub></p>
+<p align="center"><sub>The CarryOn runtime, from the paper. In dsh-carryon, dsh decides when to fold and keeps the recent turns; the Grounder is not ported yet (<a href="https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/how-it-works.md">details</a>).</sub></p>
 
-[Configuration](docs/configuration.md) · [How it works](docs/how-it-works.md) · [Development](docs/development.md) · [Benchmark](bench/README.md) · [Releasing](docs/release.md) · [Changelog](CHANGELOG.md)
+[Configuration](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/configuration.md) · [How it works](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/how-it-works.md) · [Development](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/development.md) · [Benchmark](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/bench/README.md) · [Troubleshooting](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/troubleshooting.md) · [Releasing](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/release.md) · [Changelog](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/CHANGELOG.md)
 
 ## Highlights
 
@@ -62,7 +62,7 @@ flowchart LR
 The checkpoint holds every carrier and the execution context. dsh keeps the most recent turns verbatim after it.
 A fold costs one Tracker call, plus one Compiler call when the Tracker asks for compilation; dsh's own compaction
 makes one summary call. The engine, the state format and how this port differs from the paper are described in
-[How it works](docs/how-it-works.md).
+[How it works](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/how-it-works.md).
 
 ## Results reported in the paper
 
@@ -100,15 +100,35 @@ Restart dsh. In the terminal UI, every compaction is now a CarryOn fold. In the 
 **CarryOn mode**, which you can switch from the mode menu next to the chat box:
 
 <p align="center">
-  <img src="docs/images/web-carryon-mode-menu.png" alt="CarryOn mode in the dsh Web UI mode menu" width="720">
+  <img src="https://raw.githubusercontent.com/xuan-tu-ai/dsh-carryon/main/docs/images/web-carryon-mode-menu.png" alt="CarryOn mode in the dsh Web UI mode menu" width="720">
 </p>
 
-The plugin is listed under **Plugins → Installed plugins**. A fold's checkpoint appears where dsh shows a compaction
-summary, and its full state is under Trajectory → Raw Output. To remove the plugin:
+### Check, update, remove
+
+`dsh plugin` passes its arguments to pnpm in the profile's directory, so pnpm's commands work. Check that the plugin
+is installed:
+
+```bash
+npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile tui list
+```
+
+In the Web UI it is also listed under **Plugins → Installed plugins**. Once the session is long enough to compact
+(or after `/compact`), a fold's checkpoint appears where dsh shows a compaction summary, and its full state is under
+Trajectory → Raw Output.
+
+Update to the latest release for your dsh version:
+
+```bash
+npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile tui update dsh-carryon
+```
+
+Remove it:
 
 ```bash
 npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile tui remove dsh-carryon
 ```
+
+Use `--profile web` for the Web UI. Something not working? See [Troubleshooting](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/troubleshooting.md).
 
 ## Configuration
 
@@ -125,7 +145,7 @@ half of the context window and run the CarryOn roles on the cheaper `deepseek-fl
 ```
 
 dsh replaces a row's whole `config` with the patched one, so list all your keys together. See
-[Configuration](docs/configuration.md) for every key, the defaults, and the Web UI's limits.
+[Configuration](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/configuration.md) for every key, the defaults, and the Web UI's limits.
 
 ## Citation
 
@@ -148,5 +168,5 @@ paper's authors or with DeepSeek.
 
 ## License
 
-dsh-carryon's code is [Apache-2.0](LICENSE). The demo video and the figures shown above belong to the paper's authors,
+dsh-carryon's code is [Apache-2.0](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/LICENSE). The demo video and the figures shown above belong to the paper's authors,
 who gave permission to show them here; they are not covered by that license.

@@ -1,0 +1,49 @@
+name: Bug report
+description: Something does not work as described in the README or docs.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Check [Troubleshooting](https://github.com/xuan-tu-ai/dsh-carryon/blob/main/docs/troubleshooting.md) first.
+        Never paste API keys. Fold state contains text from your session: remove anything private.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: dsh, dsh-carryon and Node.js. `npx @deepseek-ai/dsh@<version> plugin --profile <name> list` shows dsh-carryon's version.
+      placeholder: dsh 0.2.2-alpha.3, dsh-carryon 0.1.1, Node.js 22.12, Windows 11
+    validations:
+      required: true
+  - type: dropdown
+    id: profile
+    attributes:
+      label: Profile
+      options: [tui, web, headless, sdk, acp, desktop, other]
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: The agent's model, and runtimeModel if you set one.
+      placeholder: deepseek-v4-pro, runtimeModel deepseek-flash
+  - type: textarea
+    id: config
+    attributes:
+      label: carryon-compaction config
+      description: Your `carryon-compaction` row from cordis.patch.yml, if you changed it.
+      render: yaml
+  - type: textarea
+    id: logs
+    attributes:
+      label: Errors and logs
+      description: The `compaction/end` errors, dsh's output, or the pnpm.log for install problems.
+      render: text

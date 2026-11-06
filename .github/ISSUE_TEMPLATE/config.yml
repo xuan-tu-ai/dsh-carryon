@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question about the CarryOn method
+    url: https://ethannju.github.io/carryon/
+    about: The paper's project page. dsh-carryon is an independent implementation, not affiliated with the authors.
