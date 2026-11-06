@@ -9,17 +9,15 @@ someone hosts; dsh's Web UI reads those in its experimental Discover tab. The pa
 
 ## One-time setup
 
-1. **npm token.** On npmjs.com, create a granular access token with read and write access to packages.
-   - The package does not exist before the first publish, so the token must cover all packages at first.
-   - After 0.1.0, narrow it to `dsh-carryon`.
-   - The token must be able to publish without an interactive 2FA prompt, because it runs in GitHub Actions.
-2. **GitHub secret.** In the repository, open Settings → Secrets and variables → Actions → New repository secret.
-   Name it `NPM_TOKEN` and paste the token.
-3. **Topics.** On the repository page, open About (the gear icon) and add the topics `dsh-plugin` and
-   `deepseek-harness`.
-4. **Later, optional:** switch to npm trusted publishing (OIDC), which needs no long-lived token.
-   - Configure it on the package's npm settings page once the package exists.
-   - Then drop `NODE_AUTH_TOKEN` from `.github/workflows/release.yml`.
+npm accepts publishes from `.github/workflows/release.yml` through **trusted publishing** (OIDC), so no npm token
+or GitHub secret is needed. It is configured on npmjs.com → package `dsh-carryon` → Settings → Trusted Publisher:
+GitHub Actions, `xuan-tu-ai` / `dsh-carryon`, workflow `release.yml`, with **Allow npm publish** on.
+
+Topics: the repository has `dsh-plugin` and `deepseek-harness` (About, the gear icon).
+
+The first version could not be published this way, because a trusted publisher can only be set on an existing
+package, and npm sent token publishes of a new package to staging. 0.1.0 was created by a publish from the
+maintainer's machine with 2FA and approved under Staged Packages.
 
 ## Release gate: real-model smoke test
 

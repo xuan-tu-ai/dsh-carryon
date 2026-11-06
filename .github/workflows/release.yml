@@ -1,5 +1,5 @@
 # Publish to npm when a version tag (v1.2.3) is pushed. See docs/release.md, including the real-model release gate
-# that comes before tagging. Needs the repository secret NPM_TOKEN.
+# that comes before tagging. npm accepts the publish through trusted publishing (OIDC): no token or secret is needed.
 name: Release
 
 on:
@@ -8,7 +8,7 @@ on:
 
 permissions:
   contents: write # GitHub Release
-  id-token: write # npm provenance
+  id-token: write # npm trusted publishing and provenance
 
 concurrency:
   group: release
@@ -28,6 +28,8 @@ jobs:
           node-version: 22
           cache: pnpm
           registry-url: https://registry.npmjs.org
+      - name: npm 11 (trusted publishing needs npm 11.5.1 or later)
+        run: npm install -g npm@11
       - run: pnpm install --frozen-lockfile
       - name: Tag, package.json and CHANGELOG agree
         run: |
@@ -49,11 +51,18 @@ jobs:
       - name: Offline end-to-end check on the tarball
         run: PLUGIN_SPEC="$TARBALL" scripts/offline-check.sh
       - name: Publish the checked tarball
-        run: npm publish "$TARBALL" --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # A published version cannot be replaced; skip it so that a rerun can still create the GitHub Release.
+          if npm view "dsh-carryon@$VERSION" version >/dev/null 2>&1; then
+            echo "::notice::dsh-carryon@$VERSION is already on npm; skipping publish"
+          else
+            npm publish "$TARBALL" --provenance --access public
+          fi
       - name: GitHub Release
         run: |
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            echo "::notice::release $GITHUB_REF_NAME already exists"; exit 0
+          fi
           awk -v v="$VERSION" '$0 ~ "^## " v " " {f=1; next} /^## /{f=0} f' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
           gh release create "$GITHUB_REF_NAME" "$TARBALL" --title "dsh-carryon $VERSION" --notes-file "$RUNNER_TEMP/notes.md"
         env:
