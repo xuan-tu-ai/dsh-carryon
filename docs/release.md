@@ -21,7 +21,8 @@ maintainer's machine with 2FA and approved under Staged Packages.
 
 ## Release gate: real-model smoke test
 
-A release is not published until one real-model run shows working folds. Run it on task `logstats`, one run per arm,
+A release that changes code is not published until one real-model run shows working folds (a documentation-only
+release may skip it). Run it on task `logstats`, one run per arm,
 with the fold threshold at 2% of the 1M window (about 20k tokens). On `ledger` the model finishes before the
 Tracker has anything to compile. For
 DeepSeek V4.1 Flash through Token Harbor, set these first:

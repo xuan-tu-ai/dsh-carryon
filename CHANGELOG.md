@@ -4,6 +4,16 @@ All notable changes to dsh-carryon. Versions follow [SemVer](https://semver.org/
 release may change behaviour or configuration. Each release supports exactly one dsh release, given by
 `engines.dsh` in `package.json`.
 
+## 0.1.1 (2026-11-06)
+
+Documentation only; the code is the same as 0.1.0. It supports dsh `0.2.2-alpha.3`.
+
+- **npm page.** The READMEs use full GitHub URLs for images and links, so they work on npmjs.com.
+- **Quick start.** How to check that the plugin is installed, update it, and remove it.
+- **Troubleshooting.** New `docs/troubleshooting.md`: install errors, no folds, failed folds and their messages.
+- **Issue forms** for bug reports and feature requests.
+- **Release.** Published from GitHub Actions through npm trusted publishing (OIDC).
+
 ## 0.1.0 (2026-11-06)
 
 First release. It supports dsh `0.2.2-alpha.3`.

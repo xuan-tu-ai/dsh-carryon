@@ -1,6 +1,6 @@
 {
   "name": "dsh-carryon",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CarryOn context folding (arXiv:2610.18784) as a compaction plugin for DeepSeek Harness (experimental)",
   "keywords": [
     "dsh-plugin",
