@@ -12,7 +12,7 @@
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xuan-tu-ai/dsh-carryon/ci.yml?branch=main&amp;style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI" alt="CI"></a>
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square" alt="License Apache-2.0"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/dsh-0.2.2--alpha.3-4D6BFE?style=flat-square" alt="dsh 0.2.2-alpha.3"></a>
-  <img src="https://img.shields.io/badge/Node.js-%E2%89%A522-339933?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 22 或更高版本">
+  <img src="https://img.shields.io/badge/Node.js-%E2%89%A524.9-339933?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 24.9 或更高版本">
 </p>
 
 <p align="center">
@@ -69,7 +69,7 @@ flowchart LR
 
 ## 快速开始
 
-需要 [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3**（每个 dsh-carryon 版本只支持一个 dsh 版本）、Node.js 22 或更高版本，以及 pnpm。
+需要 [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3**（每个 dsh-carryon 版本只支持一个 dsh 版本）、Node.js 24.9 或更高版本（dsh 自身的要求），以及 `PATH` 中可用的 pnpm（`npm install -g pnpm`），`dsh plugin` 会调用它。
 
 把插件安装到你使用的配置（profile）中。终端界面：
 
@@ -86,7 +86,7 @@ npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile web add dsh-carryon
 如果已全局安装 dsh 0.2.2-alpha.3，可以省略 `npx @deepseek-ai/dsh@0.2.2-alpha.3` 前缀，例如
 `dsh plugin --profile tui add dsh-carryon`。下面的命令同样如此。
 
-重启 dsh。在终端界面中，每次压缩都会变成一次 CarryOn 折叠。在 Web UI 中，新会话默认使用 **CarryOn mode**，可以在输入框旁的模式菜单中切换：
+重启 dsh：`npx @deepseek-ai/dsh@0.2.2-alpha.3` 打开终端界面，`npx @deepseek-ai/dsh@0.2.2-alpha.3 web` 启动 Web UI 并打印其地址。在终端界面中，每次压缩都会变成一次 CarryOn 折叠。在 Web UI 中，新会话默认使用 **CarryOn mode**，可以在输入框旁的模式菜单中切换：
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/xuan-tu-ai/dsh-carryon/main/docs/images/web-carryon-mode-menu.png" alt="dsh Web UI 模式菜单中的 CarryOn mode" width="720">
