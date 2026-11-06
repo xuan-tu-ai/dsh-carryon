@@ -23,7 +23,9 @@ someone hosts; dsh's Web UI reads those in its experimental Discover tab. The pa
 
 ## Release gate: real-model smoke test
 
-0.1.0 is not published until one real-model run shows working folds. Run it on task `ledger`, one run per arm. For
+A release is not published until one real-model run shows working folds. Run it on task `logstats`, one run per arm,
+with the fold threshold at 2% of the 1M window (about 20k tokens). On `ledger` the model finishes before the
+Tracker has anything to compile. For
 DeepSeek V4.1 Flash through Token Harbor, set these first:
 
 ```bash
@@ -35,7 +37,7 @@ export DEEPSEEK_API_KEY=<key>
 ```
 
 ```bash
-node scripts/bench/run.mjs --tasks ledger --overlay scripts/bench/deepseek-v41-flash.patch.yml
+node scripts/bench/run.mjs --tasks logstats --overlay scripts/bench/deepseek-v41-flash.patch.yml --threshold-ratio 0.02
 ```
 
 ```bash
@@ -55,9 +57,8 @@ node scripts/bench/report.mjs <out-dir>
 The `basic` run is there only for comparison.
 
 When the gate passes, before tagging:
-1. Put the ledger rows of `report.md` into `docs/p3-notes.md`, labelled "1 run per arm, anecdotal".
-2. Put one sentence about the run into the Status section of `README.md` and `README.zh-CN.md`.
-3. In both READMEs, remove the note that says 0.1.0 is not on npm.
+1. Put the task rows of `report.md` into `docs/p3-notes.md`, labelled "1 run per arm, anecdotal".
+2. Before the first release only: in both READMEs, remove the note that says the package is not on npm.
 
 If it fails, fix the cause first. A run where every fold fell back to dsh's summary also fails, because it has no
 committed fold.

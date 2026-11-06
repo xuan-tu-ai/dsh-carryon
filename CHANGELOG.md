@@ -4,7 +4,7 @@ All notable changes to dsh-carryon. Versions follow [SemVer](https://semver.org/
 release may change behaviour or configuration. Each release supports exactly one dsh release, given by
 `engines.dsh` in `package.json`.
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-11-06)
 
 First release. It supports dsh `0.2.2-alpha.3`.
 

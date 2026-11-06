@@ -117,7 +117,7 @@ repeats), but check the first run's report before starting the rest.
 
 ### Release gate
 
-Before the first npm release, one real-model run on `ledger` must show committed CarryOn folds and an agent that
+Before the first npm release, one real-model run on `logstats` must show committed CarryOn folds and an agent that
 goes on after them. Check it with `node scripts/bench/smoke-gate.mjs <out-dir>`; see [docs/release.md](../docs/release.md).
 
 ### Real model, Web UI

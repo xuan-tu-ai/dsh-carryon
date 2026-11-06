@@ -70,9 +70,6 @@ flowchart LR
 
 需要 [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3**（每个 dsh-carryon 版本只支持一个 dsh 版本）、Node.js 22 或更高版本，以及 pnpm。
 
-> [!NOTE]
-> 0.1.0 尚未发布到 npm。在此之前，请按[开发文档](docs/development.md#run-a-checkout-with-a-real-model)从源码检出安装。
-
 把插件安装到你使用的配置（profile）中。终端界面：
 
 ```bash

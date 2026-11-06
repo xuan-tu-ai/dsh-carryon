@@ -6,7 +6,8 @@
     models:
       - id: deepseek-v4.1-flash
         contextWindow: 1000000
-        maxTokens: 8192
+        # 8192 was too small: the model spent it on thinking in one step and dsh stopped with max-tokens.
+        maxTokens: 32768
 
 - id: agent-default-model
   config:

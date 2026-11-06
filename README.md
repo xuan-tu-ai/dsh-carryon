@@ -83,10 +83,6 @@ On BrowseComp-Plus, the paper reports accuracy rising from 49.0% to 56.0% with 2
 You need [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3** (each dsh-carryon release supports
 exactly one dsh release), Node.js 22 or later, and pnpm.
 
-> [!NOTE]
-> 0.1.0 is not on npm yet. Until then, install from a checkout as described in
-> [Development](docs/development.md#run-a-checkout-with-a-real-model).
-
 Install the plugin into the profile you use. For the terminal UI:
 
 ```bash

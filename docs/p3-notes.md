@@ -50,6 +50,25 @@ up. Until then there are no measurements, and the README makes no claim about to
   - Benchmark output must not live inside this repository (hidden tests and solutions). The runners refuse it and
     flag sessions that mention `bench/tasks`.
 
+## Release gate run (2026-11-06)
+
+DeepSeek V4.1 Flash through Token Harbor, `maxTokens: 32768`, `--threshold-ratio 0.02 --retain-tokens 4000`.
+1 run per arm, anecdotal.
+
+| Task | Arm | Score | Total tokens | Cost | Steps | Peak context | Folds | Summaries | Failed |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| logstats | carryon | 10/10 | 391.4k | $0.0441 | 21 | 19.8k | 3 | 0 | 0 |
+| logstats | basic | 10/10 | 460.9k | $0.0465 | 21 | 30.1k | 0 | 5 | 5 |
+
+`smoke-gate.mjs` passed: 3 committed CarryOn folds, 12 agent steps after the first one.
+
+Earlier attempts on `ledger` did not pass the gate:
+- With `maxTokens: 8192`, both arms stopped after 3–4 steps: the model spent the whole output budget on thinking
+  and dsh ended the turn with `max-tokens`. The overlay now sets 32768.
+- At the default 5% threshold (about 50k tokens), the task was solved before any compaction (peak context 28k).
+- At 1.2% (about 12k tokens), the only fold attempt came right after the agent had read the spec and tests. The
+  Tracker made no compile request, the fold was rejected, and the task ended during the backoff that followed.
+
 ## How to run the real comparison
 
 See `bench/README.md`. In short, with model access configured:
