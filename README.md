@@ -12,7 +12,7 @@
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/xuan-tu-ai/dsh-carryon/ci.yml?branch=main&amp;style=flat-square&amp;logo=githubactions&amp;logoColor=white&amp;label=CI" alt="CI"></a>
   <a href="https://github.com/xuan-tu-ai/dsh-carryon/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache--2.0-blue?style=flat-square" alt="License Apache-2.0"></a>
   <a href="https://github.com/deepseek-ai/deepseek-harness"><img src="https://img.shields.io/badge/dsh-0.2.2--alpha.3-4D6BFE?style=flat-square" alt="dsh 0.2.2-alpha.3"></a>
-  <img src="https://img.shields.io/badge/Node.js-%E2%89%A522-339933?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 22 or later">
+  <img src="https://img.shields.io/badge/Node.js-%E2%89%A524.9-339933?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 24.9 or later">
 </p>
 
 <p align="center">
@@ -82,7 +82,8 @@ On BrowseComp-Plus, the paper reports accuracy rising from 49.0% to 56.0% with 2
 ## Quick start
 
 You need [dsh](https://github.com/deepseek-ai/deepseek-harness) **0.2.2-alpha.3** (each dsh-carryon release supports
-exactly one dsh release), Node.js 22 or later, and pnpm.
+exactly one dsh release), Node.js 24.9 or later (dsh's own requirement), and pnpm on your `PATH`
+(`npm install -g pnpm`), which `dsh plugin` calls.
 
 Install the plugin into the profile you use. For the terminal UI:
 
@@ -96,7 +97,11 @@ For the Web UI:
 npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile web add dsh-carryon
 ```
 
-Restart dsh. In the terminal UI, every compaction is now a CarryOn fold. In the Web UI, new sessions start in
+If dsh 0.2.2-alpha.3 is already installed globally, drop the `npx @deepseek-ai/dsh@0.2.2-alpha.3` prefix, for example
+`dsh plugin --profile tui add dsh-carryon`. The same goes for the commands below.
+
+Restart dsh: `npx @deepseek-ai/dsh@0.2.2-alpha.3` opens the terminal UI, and
+`npx @deepseek-ai/dsh@0.2.2-alpha.3 web` serves the Web UI and prints its address. In the terminal UI, every compaction is now a CarryOn fold. In the Web UI, new sessions start in
 **CarryOn mode**, which you can switch from the mode menu next to the chat box:
 
 <p align="center">

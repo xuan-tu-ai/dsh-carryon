@@ -29,9 +29,22 @@ command. Accepting the risk is not recommended: the plugin subclasses dsh intern
 a mismatch can break compaction. Run the dsh version that the README names instead, for example with
 `npx @deepseek-ai/dsh@0.2.2-alpha.3`.
 
-### `Unsupported engine` or errors under Node.js 20
+### `'pnpm' is not recognized` / `pnpm: command not found`
 
-dsh-carryon needs Node.js 22 or later, as dsh does. Check with `node --version`.
+`dsh plugin` runs pnpm, which is not installed with Node.js. Install it, then run the command again:
+
+```bash
+npm install -g pnpm
+```
+
+With nvm or nvm-windows, global packages belong to one Node.js version: install pnpm while the version you run dsh
+with is active.
+
+### `Unsupported engine` (`EBADENGINE`), or the command exits without doing anything
+
+dsh 0.2.2-alpha.3 needs Node.js 24.9 or later. Check with `node --version`. If it still shows an older version after
+you install a newer Node.js, open a new terminal; if that does not help, another Node.js comes first on your `PATH`
+(`where node` on Windows, `which -a node` elsewhere). With nvm-windows, run `nvm install 24` and `nvm use 24`.
 
 ### Is it installed?
 
@@ -43,6 +56,11 @@ npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile tui list
 profile has its own plugins.
 
 ## Running
+
+### Where is the Web UI?
+
+`plugin add` only installs the plugin. Start the Web UI with
+`npx @deepseek-ai/dsh@0.2.2-alpha.3 web`; it prints the address to open, and stops when you close the terminal.
 
 ### A warning about `agent-preset-registry` at startup
 
