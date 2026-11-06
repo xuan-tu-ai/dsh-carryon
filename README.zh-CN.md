@@ -83,6 +83,9 @@ Web UI：
 npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile web add dsh-carryon
 ```
 
+如果已全局安装 dsh 0.2.2-alpha.3，可以省略 `npx @deepseek-ai/dsh@0.2.2-alpha.3` 前缀，例如
+`dsh plugin --profile tui add dsh-carryon`。下面的命令同样如此。
+
 重启 dsh。在终端界面中，每次压缩都会变成一次 CarryOn 折叠。在 Web UI 中，新会话默认使用 **CarryOn mode**，可以在输入框旁的模式菜单中切换：
 
 <p align="center">

@@ -96,6 +96,9 @@ For the Web UI:
 npx @deepseek-ai/dsh@0.2.2-alpha.3 plugin --profile web add dsh-carryon
 ```
 
+If dsh 0.2.2-alpha.3 is already installed globally, drop the `npx @deepseek-ai/dsh@0.2.2-alpha.3` prefix, for example
+`dsh plugin --profile tui add dsh-carryon`. The same goes for the commands below.
+
 Restart dsh. In the terminal UI, every compaction is now a CarryOn fold. In the Web UI, new sessions start in
 **CarryOn mode**, which you can switch from the mode menu next to the chat box:
 
